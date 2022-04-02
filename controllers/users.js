@@ -28,6 +28,7 @@ module.exports.getUsersById = (req, res) => {
           .send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}.` });
       }
       res.send(user);
+      return true;
     })
     .catch((err) => {
       throwErrors(err, res, message);
@@ -58,8 +59,8 @@ module.exports.updateUserProfile = (req, res) => {
     .catch((err) => {
       throwErrors(err, res, message);
     });
+  return true;
 };
-
 
 module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
@@ -74,4 +75,5 @@ module.exports.updateUserAvatar = (req, res) => {
     .catch((err) => {
       throwErrors(err, res, message);
     });
+  return true;
 };
