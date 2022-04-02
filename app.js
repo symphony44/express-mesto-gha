@@ -26,5 +26,4 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 
-// eslint-disable-next-line no-console
-app.listen(PORT, () => { console.log(`Listening to port: ${PORT}`); });
+app.listen(PORT);
