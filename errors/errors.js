@@ -7,8 +7,6 @@ const throwErrors = (err, res, message) => {
     res.status(ERR_INCORRECT_DATA).send({ message: `Ошибка, статус ${ERR_INCORRECT_DATA}. Переданы некорректные данные.` });
   } else if (err.name === 'CastError') {
     res.status(ERR_INCORRECT_DATA).send({ message: `Ошибка, статус ${ERR_INCORRECT_DATA}. ${message}.` });
-  } else if (err.statusCode === 404) {
-    res.status(err.statusCode).send({ message: err.message });
   } else {
     res.status(ERR_SERVER_ERROR)
       .send({ message: `Ошибка ${ERR_SERVER_ERROR}. Ошибка сервера.` });

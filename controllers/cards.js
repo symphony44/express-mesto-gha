@@ -35,8 +35,7 @@ module.exports.deleteCard = (req, res) => {
       if (!card) {
         return res.status(ERR_NOT_FOUND).send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}. ` });
       }
-      res.send({ message: 'Пост удалён.' });
-      return true;
+      return res.send({ message: 'Пост удалён.' });
     })
     .catch((err) => {
       throwErrors(err, res, message);
@@ -54,8 +53,7 @@ module.exports.likeCard = (req, res) => {
       if (!card) {
         return res.status(ERR_NOT_FOUND).send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}. ` });
       }
-      res.send(card);
-      return true;
+      return res.send(card);
     })
     .catch((err) => {
       throwErrors(err, res, message);
@@ -73,8 +71,7 @@ module.exports.dislikeCard = (req, res) => {
       if (!card) {
         return res.status(ERR_NOT_FOUND).send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}. ` });
       }
-      res.send(card);
-      return true;
+      return res.send(card);
     })
     .catch((err) => {
       throwErrors(err, res, message);

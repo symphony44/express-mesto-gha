@@ -27,8 +27,7 @@ module.exports.getUsersById = (req, res) => {
         return res.status(ERR_NOT_FOUND)
           .send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}.` });
       }
-      res.send(user);
-      return true;
+      return res.send(user);
     })
     .catch((err) => {
       throwErrors(err, res, message);
@@ -52,14 +51,13 @@ module.exports.updateUserProfile = (req, res) => {
   if (!name || !about) {
     return res.status(ERR_INCORRECT_DATA).send({ message: `Ошибка, статус: ${ERR_INCORRECT_DATA}. Переданы некорректные данные.` });
   }
-  User.findByIdAndUpdate(id, { name, about })
+  return User.findByIdAndUpdate(id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       throwErrors(err, res, message);
     });
-  return true;
 };
 
 module.exports.updateUserAvatar = (req, res) => {
@@ -68,12 +66,11 @@ module.exports.updateUserAvatar = (req, res) => {
   if (!avatar) {
     return res.status(ERR_INCORRECT_DATA).send({ message: `Ошибка, статус: ${ERR_INCORRECT_DATA}. Переданы некорректные данные.` });
   }
-  User.findByIdAndUpdate(id, { avatar })
+  return User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       throwErrors(err, res, message);
     });
-  return true;
 };
