@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const { ERR_SERVER_ERROR } = require('./errors/errors');
-const NotFoundError = require('./errors/NotFoundError');
 const { createUser, login } = require('./controllers/users');
 
 const app = express();

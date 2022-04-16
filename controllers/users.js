@@ -9,8 +9,9 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       if (!users) {
-        throw new NotFoundError('Пользователи не найден.');
+        throw new NotFoundError('Пользователи не найдены.');
       }
+      return res.send(users);
     })
     .catch((err) => {
       next(err);
