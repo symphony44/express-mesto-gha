@@ -1,22 +1,19 @@
 const Card = require('../models/card');
-const {
-  throwErrors,
-  ERR_NOT_FOUND,
-} = require('../errors/errors');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
+const NotFoundError = require('../errors/NotFoundError');
 
-const message = 'Карточка с указанным id не найдена.';
-
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       res.send(cards);
     })
     .catch((err) => {
-      throwErrors(err, res, message);
+      next(err);
     });
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
@@ -24,25 +21,34 @@ module.exports.createCard = (req, res) => {
       res.send(card);
     })
     .catch((err) => {
-      throwErrors(err, res, message);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+  const ownerId = req.user._id;
+  Card.findById(cardId)
+    .orFail(() => next(new NotFoundError('Карточка с указанным id не найдена.')))
     .then((card) => {
-      if (!card) {
-        return res.status(ERR_NOT_FOUND).send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}. ` });
+      if (!card.owner.equals(ownerId)) {
+        return next(new ForbiddenError('Нельзя удалить чужую карточку.'));
       }
-      return res.send({ message: 'Пост удалён.' });
+      return card.remove()
+        .then(() => {
+          res.send({ message: 'Карточка удалена.' });
+        });
     })
     .catch((err) => {
-      throwErrors(err, res, message);
+      next(err);
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(
     cardId,
@@ -51,16 +57,16 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(ERR_NOT_FOUND).send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}. ` });
+        throw new NotFoundError('Карточка с указанным id не найдена.');
       }
       return res.send(card);
     })
     .catch((err) => {
-      throwErrors(err, res, message);
+      next(err);
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(
     cardId,
@@ -69,11 +75,11 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(ERR_NOT_FOUND).send({ message: `Ошибка, статус: ${ERR_NOT_FOUND}. ${message}. ` });
+        throw new NotFoundError('Карточка с указанным id не найдена.');
       }
       return res.send(card);
     })
     .catch((err) => {
-      throwErrors(err, res, message);
+      next(err);
     });
 };
