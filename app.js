@@ -25,11 +25,6 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(auth);
-
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
-
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
@@ -48,6 +43,11 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
   }),
 }), createUser);
+
+app.use(auth);
+
+app.use('/users', userRouter);
+app.use('/cards', cardRouter);
 
 app.use((req, res, next) => {
   next(new NotFoundError('Маршрут не найден'));
