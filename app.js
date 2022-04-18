@@ -3,8 +3,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
-const { ERR_SERVER_ERROR } = require('./errors/errors');
 const { createUser, login } = require('./controllers/users');
+const NotFoundError = require('./errors/NotFoundError');
+const middlewareError = require('./middlewares/error');
 
 const app = express();
 
@@ -21,6 +22,9 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(auth);
+
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 
@@ -36,23 +40,19 @@ app.post('/signup', celebrate({
       .default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30)
       .default('Исследователь'),
-    avatar: Joi.string()
+    avatar: Joi.string().pattern(/(https|http):\/\/(www.)?[a-zA-Z0-9-_]+\.[a-zA-Z]+(\/[a-zA-Z0-9-._/~:@!$&'()*+,;=]*$)?/)
       .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), createUser);
 
-app.use(auth);
-
-app.use(errors);
-
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || ERR_SERVER_ERROR;
-  const message = statusCode === ERR_SERVER_ERROR ? 'На сервере произошла ошибка.' : err.message;
-  res.status(statusCode).send({ message });
-  next();
+app.use((req, res, next) => {
+  next(new NotFoundError('Маршрут не найден'));
 });
+
+app.use(errors());
+app.use(middlewareError);
 
 // eslint-disable-next-line no-console
 app.listen(PORT, () => { console.log(`Listening to port: ${PORT}`); });

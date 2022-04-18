@@ -69,37 +69,43 @@ module.exports.createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
     });
 };
 
 module.exports.updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
   const id = req.user._id;
-  if (!name || !about) {
-    throw new BadRequestError('Переданы некорректные данные для обновления данных пользователя.');
-  }
   return User.findByIdAndUpdate(id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
     });
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const id = req.user._id;
-  if (!avatar) {
-    throw new BadRequestError('Переданы некорректные данные для обновления аватара.');
-  }
   return User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
     });
 };
 
