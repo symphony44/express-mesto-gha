@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const { createUser, login } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
 const middlewareError = require('./middlewares/error');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 app.use(helmet());
@@ -24,6 +25,13 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(requestLogger);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -53,6 +61,7 @@ app.use((req, res, next) => {
   next(new NotFoundError('Маршрут не найден'));
 });
 
+app.use(errorLogger);
 app.use(errors());
 app.use(middlewareError);
 
