@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const cors = require('cors');
 const { createUser, login } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundError');
 const middlewareError = require('./middlewares/error');
@@ -21,6 +22,21 @@ const auth = require('./middlewares/auth');
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
+
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://symphony44.nomoredomains.work',
+    'https://symphony44.nomoredomains.work',
+  ],
+  methods: [
+    'GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'HEAD',
+  ],
+  allowedHeaders: [
+    'Content-Type', 'Authorization', 'Origin', 'Accept',
+  ],
+  credentials: true,
+}));
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -51,6 +67,15 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
   }),
 }), createUser);
+app.get('/signout', (req, res) => {
+  res.status(200)
+    .clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true,
+    })
+    .send({ message: 'Выход' });
+});
 
 app.use(auth);
 
