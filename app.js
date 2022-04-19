@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -75,6 +76,23 @@ app.get('/signout', (req, res) => {
       secure: true,
     })
     .send({ message: 'Выход' });
+});
+app.get('/auth-check', (req, res) => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    res.send({ isLogin: false });
+  } else {
+    let payload;
+
+    try {
+      payload = jwt.verify(token, 'some-secret-key');
+    } catch (err) {
+      res.send({ isLogin: false });
+    }
+    if (payload) {
+      res.send({ isLogin: true });
+    }
+  }
 });
 
 app.use(auth);
