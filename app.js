@@ -12,6 +12,8 @@ const NotFoundError = require('./errors/NotFoundError');
 const middlewareError = require('./middlewares/error');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 const app = express();
 app.use(helmet());
 
@@ -86,7 +88,7 @@ app.get('/auth-check', (req, res) => {
     let payload;
 
     try {
-      payload = jwt.verify(token, 'some-secret-key');
+      payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key');
     } catch (err) {
       res.send({ isLogin: false });
     }
